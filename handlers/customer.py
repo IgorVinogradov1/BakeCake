@@ -70,6 +70,27 @@ async def order_cake(message: types.Message):
     else:
         await send_agreement(message)
 
+
+@router.message()
+async def process_cake_selection(message: types.Message):
+    cakes = db_manager.get_cakes()
+
+    selected_cake = None
+    for cake in cakes:
+        if message.text.startswith(cake["name"]):
+            selected_cake = cake
+            break
+
+    if selected_cake:
+        await message.answer(
+            f"В вашей корзине {selected_cake['name']}\n"
+            f"Сумма заказа {selected_cake['price']}"
+        )
+    else:
+        await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
+
+
+
 @router.message(F.text == "Собрать свой торт")
 async def constructor_cake(message: types.Message):
     if db_manager.has_user_agreed(message.from_user.id):
