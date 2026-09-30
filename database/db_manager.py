@@ -4,6 +4,7 @@ import json
 
 DB_FILE = 'database.json'
 
+
 def init_db():
     if not(os.path.exists(DB_FILE)):
         default_data = {
@@ -20,6 +21,7 @@ def init_db():
         }
         with open(DB_FILE, 'w', encoding='utf-8') as f:
             json.dump(default_data, f, ensure_ascii=False, indent=4)
+
 
 def register_new_user(user_id, username, first_name):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
@@ -76,5 +78,5 @@ def get_cakes():
         return []
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    cakes = data.get('cakes', [])
+    cakes = data['cakes']
     return cakes
