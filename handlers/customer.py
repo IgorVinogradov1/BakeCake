@@ -3,6 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import FSInputFile, ReplyKeyboardRemove
 from database import db_manager
+import keyboards
 
 
 router = Router()
@@ -59,13 +60,13 @@ async def show_prices(message: types.Message):
         "Для заказа нажмите на кнопку 'Заказать торт' в меню."
     )
 
+
 @router.message(F.text == "Заказать торт")
 async def order_cake(message: types.Message):
     if db_manager.has_user_agreed(message.from_user.id):
         await message.answer(
-        "Приступим к заказу!",
-        reply_markup=ReplyKeyboardRemove()
-        )
+        "Выберите один из наших готовых тортов.",
+        reply_markup=keyboards.get_cakes_keyboard())
     else:
         await send_agreement(message)
 
