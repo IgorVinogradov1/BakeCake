@@ -6,8 +6,20 @@ DB_FILE = 'database.json'
 
 def init_db():
     if not(os.path.exists(DB_FILE)):
+        default_data = {
+            "users": [],
+            "orders":[],
+            "cakes":[
+                {"name": "Свадебный 'Нежность'", "price": 5000},
+                {"name": "Торт 'Юбилей'", "price": 4500},
+                {"name": "Шоколадный 'Брауни'", "price": 3200},
+                {"name": "Ягодный 'Восторг'", "price": 3800},
+                {"name": "Детский 'Карамелька'", "price": 2800},
+                {"name": "Праздничный 'Красный бархат'", "price": 3500},
+            ]
+        }
         with open(DB_FILE, 'w', encoding='utf-8') as f:
-            json.dump({'users': [], 'orders': []}, f, ensure_ascii=False, indent=4)
+            json.dump(default_data, f, ensure_ascii=False, indent=4)
 
 def register_new_user(user_id, username, first_name):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
@@ -57,3 +69,12 @@ def save_user_agreement(user_id, username, first_name):
         
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(db_users, f, ensure_ascii=False, indent=4)
+
+
+def get_cakes():
+    if not os.path.exists(DB_FILE):
+        return []
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    cakes = data.get('cakes', [])
+    return cakes
