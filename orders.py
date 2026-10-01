@@ -9,9 +9,11 @@ def main():
         print(
             f"{'*' * 40}\n"
             f"Номер заказа: {order["order_num"]}\n"
-            f'Имя заказчика: {order["customer_name"]}\n'
-            f'Номер телефона заказчика: {order["customer_phone"]}\n'
-            f'Торт: {order["cake_name"]}'
+            f"ID заказчика: {order['user_id']}\n"
+            f"Имя заказчика: {order["customer_name"]}\n"
+            f"Номер телефона заказчика: {order["customer_phone"]}\n"
+            f"Торт: {order["cake_name"]}\n"
+            f"Сумма заказа: {order["cake_price"]}"
         )
 
 
