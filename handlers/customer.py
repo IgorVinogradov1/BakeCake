@@ -120,10 +120,23 @@ async def process_cake_selection(message: types.Message):
             break
 
     if selected_cake:
+        customer_name = message.from_user.first_name
+        user_id = message.from_user.id
+
+        db_manager.save_cake_order(
+            user_id=user_id,
+            cake_name=selected_cake["name"],
+            cake_price=selected_cake["price"],
+            customer_name=customer_name,
+            customer_phone=None
+        )
         await message.answer(
-            f"В вашей корзине {selected_cake['name']}\n"
-            f"Сумма заказа {selected_cake['price']}"
+            f"{customer_name}, Ваш заказ принят!\n"
+            f"Сумма вашего заказа {selected_cake['price']}!\n"
+            f"Оставьте номер телефона для связи."
+            f"В ближайшее время с вами свяжется наш менеджер."
         )
     else:
         await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
+
 
