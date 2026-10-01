@@ -12,4 +12,6 @@ def get_cakes_keyboard():
         cakes_builder.add(KeyboardButton(text=button_text))
 
     cakes_builder.adjust(2)
+    cakes_builder.row(KeyboardButton(text="Вернуться в главное меню"))
+
     return cakes_builder.as_markup(resize_keyboard=True)
