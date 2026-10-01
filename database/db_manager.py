@@ -83,7 +83,7 @@ def get_cakes():
     return cakes
 
 
-def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phone):
+def save_order(user_id, cake_name, cake_price, customer_name, customer_phone):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
