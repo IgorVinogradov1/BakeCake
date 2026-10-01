@@ -84,7 +84,7 @@ async def process_pd_agree(message: types.Message):
     )
     await message.answer(
         "Отлично! Приступим к заказу!",
-        reply_markup=ReplyKeyboardRemove()
+        reply_markup=keyboards.get_cakes_keyboard()
     )
 
 
@@ -105,14 +105,14 @@ async def process_pd_disagree(message: types.Message):
 
 
 
-@router.message(F.text == "Заказать торт")
-async def order_cake(message: types.Message):
-    if db_manager.has_user_agreed(message.from_user.id):
-        await message.answer(
-        "Выберите один из наших готовых тортов.",
-        reply_markup=keyboards.get_cakes_keyboard())
-    else:
-        await send_agreement(message)
+# @router.message(F.text == "Заказать торт")
+# async def order_cake(message: types.Message):
+#     if db_manager.has_user_agreed(message.from_user.id):
+#         await message.answer(
+#         "Выберите один из наших готовых тортов.",
+#         reply_markup=keyboards.get_cakes_keyboard())
+#     else:
+#         await send_agreement(message)
 
         
 
