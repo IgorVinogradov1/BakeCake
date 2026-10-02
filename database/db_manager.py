@@ -84,7 +84,7 @@ def get_cakes():
 
 
 
-def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phone):
+def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phone, tg_username):
 
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -95,7 +95,8 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         "cake_name": cake_name,
         "cake_price": cake_price,
         "customer_name": customer_name,
-        "customer_phone": customer_phone
+        "customer_phone": customer_phone,
+        "tg_username": tg_username,
     }
     data["orders"].append(order)
 

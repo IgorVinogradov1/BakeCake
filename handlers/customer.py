@@ -137,18 +137,23 @@ async def process_cake_selection(message: types.Message):
     if selected_cake:
         customer_name = message.from_user.first_name
         user_id = message.from_user.id
+        if message.from_user.username:
+            tg_username = f"@{message.from_user.username}"
+        else:
+            tg_username = f"{user_id}"
 
         db_manager.save_cake_order(
             user_id=user_id,
             cake_name=selected_cake["name"],
             cake_price=selected_cake["price"],
             customer_name=customer_name,
-            customer_phone=None
+            customer_phone=None,
+            tg_username=tg_username,
         )
         await message.answer(
-            f"{customer_name}, Ваш заказ принят!\n"
+            f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
             f"Сумма вашего заказа {selected_cake['price']}!\n"
-            f"Оставьте номер телефона для связи.",
+            f"Поделитесь своим номером для связи с вами!",
             reply_markup=keyboards.get_phone_keyboard()
         )
     else:

@@ -12,6 +12,7 @@ def main():
             f"ID заказчика: {order['user_id']}\n"
             f"Имя заказчика: {order["customer_name"]}\n"
             f"Номер телефона заказчика: {order["customer_phone"]}\n"
+            f"ТГ аккаунт: {order['tg_username']}\n"
             f"Торт: {order["cake_name"]}\n"
             f"Сумма заказа: {order["cake_price"]}"
         )
