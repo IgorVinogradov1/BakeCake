@@ -4,6 +4,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import FSInputFile, ReplyKeyboardRemove
 from database import db_manager
 import keyboards
+import os
 
 router = Router()
 
@@ -150,12 +151,28 @@ async def process_cake_selection(message: types.Message):
             customer_phone=None,
             tg_username=tg_username,
         )
-        await message.answer(
-            f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
-            f"Сумма вашего заказа {selected_cake['price']}!\n"
-            f"Поделитесь своим номером для связи с вами!",
-            reply_markup=keyboards.get_phone_keyboard()
-        )
+
+        caption_text = selected_cake["description"]
+        image_path = selected_cake.get("img")
+
+        if image_path and os.path.exists(image_path):
+            cake_img = FSInputFile(image_path)
+            await message.answer_photo(
+                photo=cake_img,
+                caption=caption_text,
+                parse_mode="html",
+                reply_markup=keyboards.get_phone_keyboard()
+            )
+        else:
+            text_fallback = (
+                f"{caption_text}\n"
+                f"Упс, мы временно потеряла фото этого торта =/"
+            )
+            await message.answer(
+                text=text_fallback,
+                parse_mode="html",
+                reply_markup=keyboards.get_phone_keyboard()
+            )
     else:
         await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
 
