@@ -101,3 +101,16 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def update_last_order_phone(user_id, phone_number):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    for order in reversed(data["orders"]):
+        if order["user_id"] == user_id:
+            order["customer_phone"] = phone_number
+            break
+
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
