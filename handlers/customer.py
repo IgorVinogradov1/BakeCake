@@ -108,7 +108,21 @@ async def process_pd_disagree(message: types.Message):
 @router.message(F.text == "Вернуться в главное меню")
 async def back_main_menu(message: types.Message):
     await cmd_start(message)
-        
+
+
+@router.message(F.contact)
+async def process_phone_contact(message: types.Message):
+    phone_number = message.contact.phone_number
+    user_id = message.from_user.id
+
+    db_manager.update_last_order_phone(user_id, phone_number)
+
+    await message.answer(
+        "Спасибо за заказ!\n"
+        "В ближайшее время с вами свяжется наш менеджер.",
+        reply_markup=types.ReplyKeyboardRemove()
+    )
+
 
 @router.message()
 async def process_cake_selection(message: types.Message):
@@ -134,8 +148,8 @@ async def process_cake_selection(message: types.Message):
         await message.answer(
             f"{customer_name}, Ваш заказ принят!\n"
             f"Сумма вашего заказа {selected_cake['price']}!\n"
-            f"Оставьте номер телефона для связи."
-            f"В ближайшее время с вами свяжется наш менеджер."
+            f"Оставьте номер телефона для связи.",
+            reply_markup=keyboards.get_phone_keyboard()
         )
     else:
         await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
