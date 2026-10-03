@@ -106,11 +106,6 @@ async def process_pd_disagree(message: types.Message):
     )
 
 
-@router.message(F.text == "Вернуться в главное меню")
-async def back_main_menu(message: types.Message):
-    await cmd_start(message)
-
-
 @router.message(F.contact)
 async def process_phone_contact(message: types.Message):
     phone_number = message.contact.phone_number
@@ -125,8 +120,51 @@ async def process_phone_contact(message: types.Message):
     )
 
 
+@router.message(F.text == "Вернуться в главное меню")
+async def back_main_menu(message: types.Message):
+    await cmd_start(message)
+
+
+@router.message(F.text.startswith("Оформить заказ:"))
+async def process_checkout_click(message: types.Message):
+    cake_name_from_button = message.text.replace("Оформить заказ: ", "")
+
+    cakes = db_manager.get_cakes()
+    selected_cake = None
+    for cake in cakes:
+        if cake["name"] == cake_name_from_button:
+            selected_cake = cake
+            break
+
+    customer_name = message.from_user.first_name
+    user_id = message.from_user.id
+    if message.from_user.username:
+        tg_username = f"@{message.from_user.username}"
+    else:
+        tg_username = f"{user_id}"
+
+    db_manager.save_cake_order(
+        user_id=user_id,
+        cake_name=selected_cake["name"],
+        cake_price=selected_cake["price"],
+        customer_name=customer_name,
+        customer_phone=None,
+        tg_username=tg_username,
+    )
+    await message.answer(
+        f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
+        f"Сумма вашего заказа {selected_cake['price']}!\n"
+        f"Поделитесь своим номером для связи с вами!",
+        parse_mode="html",
+        reply_markup=keyboards.get_phone_keyboard()
+    )
+
+
 @router.message()
 async def process_cake_selection(message: types.Message):
+    if not message.text:
+        return
+
     cakes = db_manager.get_cakes()
 
     selected_cake = None
@@ -136,24 +174,10 @@ async def process_cake_selection(message: types.Message):
             break
 
     if selected_cake:
-        customer_name = message.from_user.first_name
-        user_id = message.from_user.id
-        if message.from_user.username:
-            tg_username = f"@{message.from_user.username}"
-        else:
-            tg_username = f"{user_id}"
-
-        db_manager.save_cake_order(
-            user_id=user_id,
-            cake_name=selected_cake["name"],
-            cake_price=selected_cake["price"],
-            customer_name=customer_name,
-            customer_phone=None,
-            tg_username=tg_username,
-        )
-
         caption_text = selected_cake["description"]
         image_path = selected_cake.get("img")
+
+        checkout_kb = keyboards.get_checkout_reply_keyboard(selected_cake["name"])
 
         if image_path and os.path.exists(image_path):
             cake_img = FSInputFile(image_path)
@@ -161,7 +185,7 @@ async def process_cake_selection(message: types.Message):
                 photo=cake_img,
                 caption=caption_text,
                 parse_mode="html",
-                reply_markup=keyboards.get_phone_keyboard()
+                reply_markup=checkout_kb
             )
         else:
             text_fallback = (
@@ -171,7 +195,7 @@ async def process_cake_selection(message: types.Message):
             await message.answer(
                 text=text_fallback,
                 parse_mode="html",
-                reply_markup=keyboards.get_phone_keyboard()
+                reply_markup=checkout_kb
             )
     else:
         await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
