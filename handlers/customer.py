@@ -1,10 +1,13 @@
 from aiogram import Router, types, F
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import FSInputFile, ReplyKeyboardRemove
 from database import db_manager
 import keyboards
 import os
+
+from states import CatalogState
 
 router = Router()
 
@@ -117,7 +120,8 @@ async def process_delete_order(message: types.Message):
 
 
 @router.message(F.text == "Заказать торт")
-async def order_cake(message: types.Message):
+async def order_cake(message: types.Message, state: FSMContext):
+    await state.set_state(CatalogState.waiting_for_cake)
     await message.answer(
         "Выберите один из наших готовых тортов.",
         reply_markup=keyboards.get_cakes_keyboard()
@@ -149,10 +153,11 @@ async def process_phone_contact(message: types.Message):
 
 
 @router.message(F.text == "Выбрать другой торт")
-async def process_cancel_and_main_menu(message: types.Message):
+async def process_cancel_and_cake_menu(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
 
     db_manager.cancel_last_order(user_id)
+    await state.set_state(CatalogState.waiting_for_cake)
 
     await message.answer(
         "Заказ отменен. Выбираем другой торт.",
@@ -172,12 +177,14 @@ async def process_checkout_without_phone(message: types.Message):
 
 
 @router.message(F.text == "Вернуться в главное меню")
-async def back_main_menu(message: types.Message):
+async def back_main_menu(message: types.Message, state: FSMContext):
+    await state.clear()
     await cmd_start(message)
 
 
-@router.message(F.text.startswith("Оформить заказ:"))
-async def process_checkout_click(message: types.Message):
+@router.message(F.text.startswith("Оформить заказ:"), CatalogState.waiting_for_cake)
+async def process_checkout_click(message: types.Message, state: FSMContext):
+    await state.clear()
     cake_name_from_button = message.text.replace("Оформить заказ: ", "")
 
     cakes = db_manager.get_cakes()
@@ -211,17 +218,16 @@ async def process_checkout_click(message: types.Message):
 
 
 @router.message(F.text == "Выбрать другой торт")
-async def back_to_cake_menu(message: types.Message):
+async def back_to_cake_menu(message: types.Message, state: FSMContext):
+    await state.set_state(CatalogState.waiting_for_cake)
     await message.answer(
         "Выбрать другой торт",
         reply_markup=keyboards.get_cakes_keyboard()
     )
 
 
-@router.message(lambda msg: msg.text and any(msg.text.startswith(cake["name"]) for cake in db_manager.get_cakes()))
-async def process_cake_selection(message: types.Message):
-    if not message.text:
-        return
+@router.message(CatalogState.waiting_for_cake)
+async def process_cake_selection(message: types.Message, state: FSMContext):
 
     cakes = db_manager.get_cakes()
 
@@ -232,6 +238,7 @@ async def process_cake_selection(message: types.Message):
             break
 
     if selected_cake:
+
         caption_text = selected_cake["description"]
         image_path = selected_cake.get("img")
 

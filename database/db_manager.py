@@ -157,6 +157,22 @@ def cancel_last_order(user_id):
     return False
 
 
+def delete_order(user_id, order_num):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    result = False
+    for order in data["orders"]:
+        if order["user_id"] == user_id and order["order_num"] == order_num:
+            data["orders"].remove(order)
+            result = True
+            break
+    if result:
+        with open(DB_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    return result
+
+
+
 def show_orders(user_id):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
