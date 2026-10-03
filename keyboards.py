@@ -5,7 +5,11 @@ from database import db_manager
 
 def get_phone_keyboard():
     builder = ReplyKeyboardBuilder()
-    builder.button(text="Поделиться номером телефона", request_contact=True)
+    builder.add(
+        KeyboardButton(text="Поделиться номером телефона", request_contact=True),
+        KeyboardButton(text="Отменить заказ и вернуться в главное меню")
+    )
+    builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 

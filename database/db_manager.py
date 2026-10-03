@@ -137,3 +137,20 @@ def update_last_order_phone(user_id, phone_number):
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
+def cancel_last_order(user_id):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    order_removed = False
+    for order in reversed(data["orders"]):
+        if order["user_id"] == user_id:
+            data["orders"].remove(order)
+            order_removed = True
+            break
+
+    if order_removed:
+        with open(DB_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        return True
+    return False

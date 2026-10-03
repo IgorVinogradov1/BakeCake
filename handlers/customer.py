@@ -27,7 +27,6 @@ async def send_agreement(message: types.Message):
         reply_markup=pd_builder.as_markup(resize_keyboard=True)
     )
 
-
 @router.message(CommandStart())
 async def cmd_start(message: types.Message):
     db_manager.register_new_user(
@@ -50,12 +49,11 @@ async def cmd_start(message: types.Message):
         )
         menu_builder.adjust(2)
         await message.answer(
-            f"Выберете интересующий пункт меню",
+            f"Выберете интересующий пункт меню:",
             reply_markup=menu_builder.as_markup(resize_keyboard=True)
         )
     else:
         await send_agreement(message)
-
 
 @router.message(F.text == "Посмотреть цены")
 async def show_prices(message: types.Message):
@@ -66,14 +64,12 @@ async def show_prices(message: types.Message):
         "Для заказа нажмите на кнопку 'Заказать торт' в меню."
     )
 
-
 @router.message(F.text == "Собрать свой торт")
 async def constructor_cake(message: types.Message):
     await message.answer(
         "Приступим к заказу!",
         reply_markup=ReplyKeyboardRemove()
     )
-
 
 @router.message(F.text == "Согласен, продолжить заказ")
 async def process_pd_agree(message: types.Message):
@@ -95,7 +91,6 @@ async def process_pd_agree(message: types.Message):
         reply_markup=menu_builder.as_markup(resize_keyboard=True)
     )
 
-
 @router.message(F.text == "Заказать торт")
 async def order_cake(message: types.Message):
     await message.answer(
@@ -103,14 +98,12 @@ async def order_cake(message: types.Message):
         reply_markup=keyboards.get_cakes_keyboard()
     )
 
-
 @router.message(F.text == "Не согласен")
 async def process_pd_disagree(message: types.Message):
     await message.answer(
         "К сожалению, без согласия на обработку данных мы не сможем принять ваш заказ.",
         reply_markup=ReplyKeyboardRemove()
     )
-
 
 @router.message(F.contact)
 async def process_phone_contact(message: types.Message):
@@ -125,11 +118,29 @@ async def process_phone_contact(message: types.Message):
         reply_markup=types.ReplyKeyboardRemove()
     )
 
+@router.message(F.text == "Отменить заказ и вернуться в главное меню")
+async def process_cancel_and_main_menu(message: types.Message):
+    user_id = message.from_user.id
+
+    db_manager.cancel_last_order(user_id)
+
+    menu_builder = ReplyKeyboardBuilder()
+    menu_builder.add(
+        types.KeyboardButton(text="Посмотреть цены"),
+        types.KeyboardButton(text="Заказать торт"),
+        types.KeyboardButton(text="Собрать свой торт"),
+        types.KeyboardButton(text="Мои заказы")
+    )
+    menu_builder.adjust(2)
+
+    await message.answer(
+        "Заказ отменен. Вы вернулись в главное меню:",
+        reply_markup=menu_builder.as_markup(resize_keyboard=True)
+    )
 
 @router.message(F.text == "Вернуться в главное меню")
 async def back_main_menu(message: types.Message):
     await cmd_start(message)
-
 
 @router.message(F.text.startswith("Оформить заказ:"))
 async def process_checkout_click(message: types.Message):
@@ -165,14 +176,12 @@ async def process_checkout_click(message: types.Message):
         reply_markup=keyboards.get_phone_keyboard()
     )
 
-
 @router.message(F.text == "Выбрать другой торт")
 async def back_to_cake_menu(message: types.Message):
     await message.answer(
         "Выбрать другой торт",
         reply_markup=keyboards.get_cakes_keyboard()
     )
-
 
 @router.message()
 async def process_cake_selection(message: types.Message):
@@ -204,7 +213,7 @@ async def process_cake_selection(message: types.Message):
         else:
             text_fallback = (
                 f"{caption_text}\n"
-                f"Упс, мы временно потеряла фото этого торта =/"
+                f"Упс, мы временно потеряли фото этого торта =/"
             )
             await message.answer(
                 text=text_fallback,
