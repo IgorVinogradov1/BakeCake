@@ -22,7 +22,7 @@ def get_my_orders_keyboard():
         KeyboardButton(text="Оплатить заказ"),
         KeyboardButton(text="Удалить заказ"),
         KeyboardButton(text="Добавить комментарий к заказу"),
-        KeyboardButton(text="Вернуться в меню")
+        KeyboardButton(text="Вернуться в главное меню")
     )
     builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)

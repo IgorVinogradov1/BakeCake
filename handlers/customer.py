@@ -88,6 +88,15 @@ async def show_my_orders_menu(message: types.Message):
     )
 
 
+@router.message(F.text == "Посмотреть мои заказы")
+async def process_show_orders(message: types.Message):
+    user_id = message.from_user.id
+    order_text = db_manager.show_orders(user_id)
+    await message.answer(
+        text=order_text,
+    )
+
+
 @router.message(F.text == "Заказать торт")
 async def order_cake(message: types.Message):
     await message.answer(

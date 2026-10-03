@@ -138,6 +138,7 @@ def update_last_order_phone(user_id, phone_number):
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
+
 def cancel_last_order(user_id):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -154,3 +155,25 @@ def cancel_last_order(user_id):
             json.dump(data, f, ensure_ascii=False, indent=4)
         return True
     return False
+
+
+def show_orders(user_id):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    orders_list = []
+    for order in data["orders"]:
+        if order["user_id"] == user_id:
+            order_text = (
+            f'{"*" * 40}\n\n'
+            f'Номер заказа: {order["order_num"]}\n\n'
+            f'Имя заказчика: {order["customer_name"]}\n'
+            f'Номер телефона заказчика: {order["customer_phone"]}\n'
+            f'ТГ аккаунт: {order["tg_username"]}\n'
+            f'Торт: {order["cake_name"]}\n'
+            f'Сумма заказа: {order["cake_price"]}\n'
+            f'{"*" * 40}\n\n'
+            )
+            orders_list.append(order_text)
+    if not orders_list:
+        return "У вас нет оформленных заказов"
+    return "Ваши заказы (от новых к старым):\n\n" + "\n\n".join(orders_list)
