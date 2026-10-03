@@ -218,7 +218,7 @@ async def back_to_cake_menu(message: types.Message):
     )
 
 
-@router.message()
+@router.message(lambda msg: msg.text and any(msg.text.startswith(cake["name"]) for cake in db_manager.get_cakes()))
 async def process_cake_selection(message: types.Message):
     if not message.text:
         return
