@@ -3,6 +3,18 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from database import db_manager
 
 
+def get_main_menu_keyboard():
+    menu_builder = ReplyKeyboardBuilder()
+    menu_builder.add(
+        KeyboardButton(text="Посмотреть цены"),
+        KeyboardButton(text="Заказать торт"),
+        KeyboardButton(text="Собрать свой торт"),
+        KeyboardButton(text="Мои заказы")
+    )
+    menu_builder.adjust(2)
+    return menu_builder.as_markup(resize_keyboard=True)
+
+
 def get_phone_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(

@@ -40,17 +40,9 @@ async def cmd_start(message: types.Message):
     )
 
     if db_manager.has_user_agreed(message.from_user.id):
-        menu_builder = ReplyKeyboardBuilder()
-        menu_builder.add(
-            types.KeyboardButton(text="Посмотреть цены"),
-            types.KeyboardButton(text="Заказать торт"),
-            types.KeyboardButton(text="Собрать свой торт"),
-            types.KeyboardButton(text="Мои заказы")
-        )
-        menu_builder.adjust(2)
         await message.answer(
             f"Выберете интересующий пункт меню:",
-            reply_markup=menu_builder.as_markup(resize_keyboard=True)
+            reply_markup=keyboards.get_main_menu_keyboard()
         )
     else:
         await send_agreement(message)
@@ -78,17 +70,9 @@ async def process_pd_agree(message: types.Message):
         username=message.from_user.username,
         first_name=message.from_user.first_name
     )
-    menu_builder = ReplyKeyboardBuilder()
-    menu_builder.add(
-        types.KeyboardButton(text="Посмотреть цены"),
-        types.KeyboardButton(text="Заказать торт"),
-        types.KeyboardButton(text="Собрать свой торт"),
-        types.KeyboardButton(text="Мои заказы")
-    )
-    menu_builder.adjust(2)
     await message.answer(
         "Отлично! Приступим к заказу?",
-        reply_markup=menu_builder.as_markup(resize_keyboard=True)
+        reply_markup=keyboards.get_main_menu_keyboard()
     )
 
 @router.message(F.text == "Заказать торт")
@@ -115,7 +99,7 @@ async def process_phone_contact(message: types.Message):
     await message.answer(
         "Спасибо за заказ!\n"
         "В ближайшее время с вами свяжется наш менеджер.",
-        reply_markup=types.ReplyKeyboardRemove()
+        reply_markup=keyboards.get_main_menu_keyboard()
     )
 
 @router.message(F.text == "Отменить заказ и вернуться в главное меню")
@@ -124,18 +108,9 @@ async def process_cancel_and_main_menu(message: types.Message):
 
     db_manager.cancel_last_order(user_id)
 
-    menu_builder = ReplyKeyboardBuilder()
-    menu_builder.add(
-        types.KeyboardButton(text="Посмотреть цены"),
-        types.KeyboardButton(text="Заказать торт"),
-        types.KeyboardButton(text="Собрать свой торт"),
-        types.KeyboardButton(text="Мои заказы")
-    )
-    menu_builder.adjust(2)
-
     await message.answer(
         "Заказ отменен. Вы вернулись в главное меню:",
-        reply_markup=menu_builder.as_markup(resize_keyboard=True)
+        reply_markup=keyboards.get_main_menu_keyboard()
     )
 
 @router.message(F.text == "Вернуться в главное меню")
