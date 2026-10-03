@@ -20,7 +20,7 @@ def get_my_orders_keyboard():
     builder.add(
         KeyboardButton(text="Посмотреть мои заказы"),
         KeyboardButton(text="Оплатить заказ"),
-        KeyboardButton(text="Удалить заказ"),
+        KeyboardButton(text="Удалить последний заказ"),
         KeyboardButton(text="Добавить комментарий к заказу"),
         KeyboardButton(text="Вернуться в главное меню")
     )

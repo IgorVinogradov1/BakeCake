@@ -91,10 +91,29 @@ async def show_my_orders_menu(message: types.Message):
 @router.message(F.text == "Посмотреть мои заказы")
 async def process_show_orders(message: types.Message):
     user_id = message.from_user.id
-    order_text = db_manager.show_orders(user_id)
-    await message.answer(
-        text=order_text,
-    )
+    orders_list = db_manager.show_orders(user_id)
+    if orders_list:
+        await message.answer(
+            "Ваши заказы (от новых к старым):\n\n" + "\n\n".join(orders_list)
+        )
+    else:
+        await message.answer(
+            "У вас еще нет заказов"
+        )
+
+
+@router.message(F.text == "Удалить последний заказ")
+async def process_delete_order(message: types.Message):
+    user_id = message.from_user.id
+    delete_order = db_manager.cancel_last_order(user_id)
+    if delete_order:
+        await message.answer(
+            "Ваш заказ успешно удален"
+        )
+    else:
+        await message.answer(
+            "У вас больше нет заказов"
+        )
 
 
 @router.message(F.text == "Заказать торт")

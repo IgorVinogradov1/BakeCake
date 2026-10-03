@@ -174,6 +174,4 @@ def show_orders(user_id):
             f'{"*" * 40}\n\n'
             )
             orders_list.append(order_text)
-    if not orders_list:
-        return "У вас нет оформленных заказов"
-    return "Ваши заказы (от новых к старым):\n\n" + "\n\n".join(orders_list)
+    return orders_list
