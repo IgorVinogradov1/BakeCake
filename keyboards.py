@@ -15,6 +15,19 @@ def get_main_menu_keyboard():
     return menu_builder.as_markup(resize_keyboard=True)
 
 
+def get_my_orders_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.add(
+        KeyboardButton(text="Посмотреть мои заказы"),
+        KeyboardButton(text="Оплатить заказ"),
+        KeyboardButton(text="Удалить заказ"),
+        KeyboardButton(text="Добавить комментарий к заказу"),
+        KeyboardButton(text="Вернуться в меню")
+    )
+    builder.adjust(2)
+    return builder.as_markup(resize_keyboard=True)
+
+
 def get_phone_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(

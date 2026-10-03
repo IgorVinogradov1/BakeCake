@@ -80,6 +80,14 @@ async def process_pd_agree(message: types.Message):
     )
 
 
+@router.message(F.text == "Мои заказы")
+async def show_my_orders_menu(message: types.Message):
+    await message.answer(
+        "Управление вашими заказами",
+        reply_markup=keyboards.get_my_orders_keyboard()
+    )
+
+
 @router.message(F.text == "Заказать торт")
 async def order_cake(message: types.Message):
     await message.answer(
@@ -119,7 +127,7 @@ async def process_cancel_and_main_menu(message: types.Message):
     db_manager.cancel_last_order(user_id)
 
     await message.answer(
-        "Заказ отменен. Вы вернулись в главное меню:",
+        "Заказ отменен. Выбираем другой торт.",
         reply_markup=keyboards.get_cakes_keyboard()
     )
 
@@ -170,7 +178,6 @@ async def process_checkout_click(message: types.Message):
         f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
         f"Сумма вашего заказа {selected_cake['price']}!\n"
         f"Поделитесь своим номером для связи с вами!",
-        parse_mode="html",
         reply_markup=keyboards.get_phone_keyboard()
     )
 
@@ -207,7 +214,6 @@ async def process_cake_selection(message: types.Message):
             await message.answer_photo(
                 photo=cake_img,
                 caption=caption_text,
-                parse_mode="html",
                 reply_markup=checkout_kb
             )
         else:
@@ -217,7 +223,6 @@ async def process_cake_selection(message: types.Message):
             )
             await message.answer(
                 text=text_fallback,
-                parse_mode="html",
                 reply_markup=checkout_kb
             )
     else:
