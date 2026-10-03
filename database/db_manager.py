@@ -91,14 +91,6 @@ def save_user_agreement(user_id, username, first_name):
         if user['user_id'] == user_id:
             user['agreed_to_terms'] = True
             break
-    else:
-        new_user = {
-            "user_id": user_id,
-            "username": username,
-            "first_name": first_name,
-            "agreed_to_terms": True
-        }
-        db_users['users'].append(new_user)
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(db_users, f, ensure_ascii=False, indent=4)
