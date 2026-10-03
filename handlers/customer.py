@@ -27,6 +27,7 @@ async def send_agreement(message: types.Message):
         reply_markup=pd_builder.as_markup(resize_keyboard=True)
     )
 
+
 @router.message(CommandStart())
 async def cmd_start(message: types.Message):
     db_manager.register_new_user(
@@ -47,13 +48,14 @@ async def cmd_start(message: types.Message):
             types.KeyboardButton(text="Собрать свой торт"),
             types.KeyboardButton(text="Мои заказы")
         )
-        menu_builder.adjust(2)    
+        menu_builder.adjust(2)
         await message.answer(
             f"Выберете интересующий пункт меню",
             reply_markup=menu_builder.as_markup(resize_keyboard=True)
         )
     else:
         await send_agreement(message)
+
 
 @router.message(F.text == "Посмотреть цены")
 async def show_prices(message: types.Message):
@@ -64,12 +66,14 @@ async def show_prices(message: types.Message):
         "Для заказа нажмите на кнопку 'Заказать торт' в меню."
     )
 
+
 @router.message(F.text == "Собрать свой торт")
 async def constructor_cake(message: types.Message):
     await message.answer(
         "Приступим к заказу!",
         reply_markup=ReplyKeyboardRemove()
     )
+
 
 @router.message(F.text == "Согласен, продолжить заказ")
 async def process_pd_agree(message: types.Message):
@@ -91,12 +95,14 @@ async def process_pd_agree(message: types.Message):
         reply_markup=menu_builder.as_markup(resize_keyboard=True)
     )
 
+
 @router.message(F.text == "Заказать торт")
 async def order_cake(message: types.Message):
     await message.answer(
         "Выберите один из наших готовых тортов.",
         reply_markup=keyboards.get_cakes_keyboard()
     )
+
 
 @router.message(F.text == "Не согласен")
 async def process_pd_disagree(message: types.Message):
@@ -160,6 +166,14 @@ async def process_checkout_click(message: types.Message):
     )
 
 
+@router.message(F.text == "Выбрать другой торт")
+async def back_to_cake_menu(message: types.Message):
+    await message.answer(
+        "Выбрать другой торт",
+        reply_markup=keyboards.get_cakes_keyboard()
+    )
+
+
 @router.message()
 async def process_cake_selection(message: types.Message):
     if not message.text:
@@ -199,5 +213,3 @@ async def process_cake_selection(message: types.Message):
             )
     else:
         await message.answer("Пожалуйста, выберете торт нажав на одну из кнопок!")
-
-

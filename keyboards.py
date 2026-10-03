@@ -11,7 +11,11 @@ def get_phone_keyboard():
 
 def get_checkout_reply_keyboard(cake_name: str):
     builder = ReplyKeyboardBuilder()
-    builder.button(text=f"Оформить заказ: {cake_name}")
+    builder.add(
+        KeyboardButton(text=f"Оформить заказ: {cake_name}"),
+        KeyboardButton(text="Выбрать другой торт")
+    )
+    builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
