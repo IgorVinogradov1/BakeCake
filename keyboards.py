@@ -19,7 +19,8 @@ def get_phone_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(
         KeyboardButton(text="Поделиться номером телефона", request_contact=True),
-        KeyboardButton(text="Отменить заказ и вернуться в главное меню")
+        KeyboardButton(text="Оформить без телефона"),
+        KeyboardButton(text="Выбрать другой торт")
     )
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
