@@ -28,12 +28,22 @@ def get_my_orders_keyboard():
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_phone_keyboard():
+def get_checkout_action_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.add(
+        KeyboardButton(text="Завершить оформление заказа"),
+        KeyboardButton(text="Выбрать другой торт")
+    )
+    builder.adjust(1)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+
+
+def get_final_checkout_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(
         KeyboardButton(text="Поделиться номером телефона", request_contact=True),
         KeyboardButton(text="Оформить без телефона"),
-        KeyboardButton(text="Выбрать другой торт")
+        KeyboardButton(text="Вернуться в главное меню")
     )
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

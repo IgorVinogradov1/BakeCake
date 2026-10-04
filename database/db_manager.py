@@ -119,6 +119,8 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         "customer_name": customer_name,
         "customer_phone": customer_phone,
         "tg_username": tg_username,
+        "delivery_address": None,
+        "user_comment": None
     }
     data["orders"].append(order)
 
@@ -126,13 +128,18 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def update_last_order_phone(user_id, phone_number):
+def update_last_order_data(user_id, phone_number=None, address=None, comment=None):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     for order in reversed(data["orders"]):
         if order["user_id"] == user_id:
-            order["customer_phone"] = phone_number
+            if phone_number is not None:
+                order["customer_phone"] = phone_number
+            if address is not None:
+                order["delivery_address"] = address
+            if comment is not None:
+                order["user_comment"] = comment
             break
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
@@ -187,6 +194,7 @@ def show_orders(user_id):
             f'ТГ аккаунт: {order["tg_username"]}\n'
             f'Торт: {order["cake_name"]}\n'
             f'Сумма заказа: {order["cake_price"]}\n'
+            f'Адрес доставки: {order["delivery_address"]}\n'
             f'{"*" * 40}\n\n'
             )
             orders_list.append(order_text)

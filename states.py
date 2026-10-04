@@ -3,3 +3,6 @@ from aiogram.fsm.state import StatesGroup, State
 
 class CatalogState(StatesGroup):
     waiting_for_cake = State()
+    waiting_for_checkout_action = State()
+    waiting_for_address = State()
+    waiting_for_comment = State()

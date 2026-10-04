@@ -211,9 +211,28 @@ async def process_checkout_click(message: types.Message, state: FSMContext):
     )
     await message.answer(
         f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
-        f"Сумма вашего заказа {selected_cake['price']}!\n"
-        f"Поделитесь своим номером для связи с вами!",
-        reply_markup=keyboards.get_phone_keyboard()
+        f"Сумма вашего заказа {selected_cake['price']}!\n",
+        reply_markup=keyboards.get_checkout_action_keyboard()
+    )
+
+@router.message(F.text == "Завершить оформление заказа")
+async def process_final_step(message: types.Message, state: FSMContext):
+    await  state.set_state(CatalogState.waiting_for_address)
+    await  message.answer(
+        "Пожалуйста напишите адрес доставки!",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_address)
+async def process_address_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    user_address = message.text
+    db_manager.update_last_order_data(user_id=user_id, address=user_address)
+    await state.set_state(CatalogState.waiting_for_comment)
+    await message.answer(
+        "Адрес успешно сохранен в ваш заказ",
+        reply_markup=keyboards.get_main_menu_keyboard()
     )
 
 
