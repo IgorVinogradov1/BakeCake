@@ -231,10 +231,27 @@ async def process_address_input(message: types.Message, state: FSMContext):
     db_manager.update_last_order_data(user_id=user_id, address=user_address)
     await state.set_state(CatalogState.waiting_for_comment)
     await message.answer(
-        "Адрес успешно сохранен в ваш заказ",
-        reply_markup=keyboards.get_main_menu_keyboard()
+        "Адрес успешно сохранен в ваш заказ\n"
+        "Оставьте комментарий к заказу",
+        reply_markup=keyboards.get_skip_keyboard()
     )
 
+
+@router.message(CatalogState.waiting_for_comment)
+async def process_comment_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+
+    if message.text == "Пропустить":
+        user_comment = message.text
+    else:
+        user_comment = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, comment=user_comment)
+    await state.clear()
+    await message.answer(
+        "Последний штрих для оформления вашего заказа",
+        reply_markup=keyboards.get_final_checkout_keyboard()
+    )
 
 @router.message(F.text == "Выбрать другой торт")
 async def back_to_cake_menu(message: types.Message, state: FSMContext):

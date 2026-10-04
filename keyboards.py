@@ -3,6 +3,12 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from database import db_manager
 
 
+def get_skip_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Пропустить")
+    return builder.as_markup(resize_keyboard=True)
+
+
 def get_main_menu_keyboard():
     menu_builder = ReplyKeyboardBuilder()
     menu_builder.add(

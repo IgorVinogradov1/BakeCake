@@ -195,6 +195,7 @@ def show_orders(user_id):
             f'Торт: {order["cake_name"]}\n'
             f'Сумма заказа: {order["cake_price"]}\n'
             f'Адрес доставки: {order["delivery_address"]}\n'
+            f'Комментарий: {order["user_comment"]}\n'
             f'{"*" * 40}\n\n'
             )
             orders_list.append(order_text)
