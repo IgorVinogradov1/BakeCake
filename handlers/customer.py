@@ -253,12 +253,15 @@ async def process_comment_input(message: types.Message, state: FSMContext):
         "Например, 10.10.2026\n"
         "Если дата доставки в ближайшие 24 часа + 20% к стоимости заказа!"
     )
+
+
 @router.message(CatalogState.waiting_for_delivery_date)
 async def process_delivery_date_input(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     date_text = message.text
 
     db_manager.update_last_order_data(user_id=user_id, delivery_date=date_text)
+
     await state.clear()
 
     await message.answer(

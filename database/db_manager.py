@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+import calculate
 
 DB_FILE = 'database.json'
 
@@ -145,6 +146,8 @@ def update_last_order_data(user_id, phone_number=None, address=None, comment=Non
                 order["user_comment"] = comment
             if delivery_date is not None:
                 order["delivery_date"] = delivery_date
+                if calculate.check_urgent_delivery(delivery_date):
+                    order["cake_price"] = int(order["cake_price"] * 1.2)
             break
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
