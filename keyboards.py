@@ -26,10 +26,9 @@ def get_my_orders_keyboard():
     builder.add(
         KeyboardButton(text="Посмотреть мои заказы"),
         KeyboardButton(text="Оплатить заказ"),
-        KeyboardButton(text="Оставить жалобу к заказу"),
         KeyboardButton(text="Вернуться в главное меню")
     )
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
 
 

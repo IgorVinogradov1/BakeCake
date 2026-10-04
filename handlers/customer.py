@@ -105,17 +105,51 @@ async def process_show_orders(message: types.Message):
         )
 
 
-@router.message(F.text == "Удалить последний заказ")
-async def process_delete_order(message: types.Message):
-    user_id = message.from_user.id
-    delete_order = db_manager.cancel_last_order(user_id)
-    if delete_order:
+@router.message(F.text == "Оплатить заказ")
+async  def process_pay_order(message: types.Message, state: FSMContext):
+    await  state.set_state(CatalogState.waiting_for_pay_order_num)
+
+    await message.answer(
+        "Пожалуйста введите номер заказа, который хотите оплатить",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_pay_order_num)
+async def confirm_pay_order(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
         await message.answer(
-            "Ваш заказ успешно удален"
+            "Пожалуйста введите номер заказа"
+        )
+        return
+
+    user_id = message.from_user.id
+    order_num = int(message.text)
+
+    await  state.clear()
+
+    order =db_manager.get_order_by_num(user_id, order_num)
+    if order:
+        cake_name = order["cake_name"]
+        price = order["cake_price"]
+
+        receipt_text = (
+            f"Чек на оплату заказа № {order_num}\n"
+            f"Торт {cake_name}\n"
+            f"Сумма к оплате {price}\n"
+            f"Для оплаты перейдите по ссылке\n"
+            f"https://nspk.ru{order_num}_price{price}\n\n"
+        )
+
+        await  message.answer(
+            text=receipt_text,
+            parse_mode="HTML",
+            reply_markup=keyboards.get_my_orders_keyboard()
         )
     else:
         await message.answer(
-            "У вас больше нет заказов"
+            f"Заказ № {order_num} не найден среди ваших заказов.\n",
+            reply_markup=keyboards.get_my_orders_keyboard()
         )
 
 
