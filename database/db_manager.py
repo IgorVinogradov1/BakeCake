@@ -125,6 +125,7 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         "delivery_address": None,
         "user_comment": None,
         "delivery_date": None,
+        "delivery_time": None,
     }
     data["orders"].append(order)
 
@@ -132,7 +133,7 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def update_last_order_data(user_id, phone_number=None, address=None, comment=None, delivery_date=None):
+def update_last_order_data(user_id, phone_number=None, address=None, comment=None, delivery_date=None, delivery_time=None):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
@@ -144,6 +145,8 @@ def update_last_order_data(user_id, phone_number=None, address=None, comment=Non
                 order["delivery_address"] = address
             if comment is not None:
                 order["user_comment"] = comment
+            if delivery_time is not None:
+                order["delivery_time"] = delivery_time
             if delivery_date is not None:
                 order["delivery_date"] = delivery_date
                 if calculate.check_urgent_delivery(delivery_date):
@@ -206,6 +209,7 @@ def show_orders(user_id):
             f'Адрес доставки: {order["delivery_address"]}\n'
             f'Комментарий: {order["user_comment"]}\n'
             f'Дата доставки: {order["delivery_date"]}\n'
+            f'Время доставки: {order["delivery_time"]}\n'
             f'{"*" * 40}\n\n'
             )
             orders_list.append(order_text)

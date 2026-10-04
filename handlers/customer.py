@@ -262,10 +262,23 @@ async def process_delivery_date_input(message: types.Message, state: FSMContext)
 
     db_manager.update_last_order_data(user_id=user_id, delivery_date=date_text)
 
-    await state.clear()
+    await state.set_state(CatalogState.waiting_for_delivery_time)
 
     await message.answer(
-        "Последний штрих к оформлению вашего заказа\n",
+        "Пожалйуста укажите желаемое время доставки!\n",
+    )
+
+
+@router.message(CatalogState.waiting_for_delivery_time)
+async def process_delivery_time_output(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    delivery_time_text = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, delivery_time=delivery_time_text)
+
+    await state.clear()
+    await message.answer(
+        "Последний штрих к оформлению вашего заказа.",
         reply_markup=keyboards.get_final_checkout_keyboard()
     )
 
