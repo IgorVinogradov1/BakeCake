@@ -54,11 +54,16 @@ async def cmd_start(message: types.Message):
 
 @router.message(F.text == "Посмотреть цены")
 async def show_prices(message: types.Message):
-    await message.answer(
-        "**Наши цены:**\n"
-        "Классические торты — от 1500 руб.\n"
-        "Праздничные торты — от 2200 руб/кг.\n\n"
-        "Для заказа нажмите на кнопку 'Заказать торт' в меню."
+    # await message.answer(
+    #     "**Наши цены:**\n"
+    #     "Классические торты — от 1500 руб.\n"
+    #     "Праздничные торты — от 2200 руб/кг.\n\n"
+    #     "Для заказа нажмите на кнопку 'Заказать торт' в меню."
+    # )
+    await message.answer_document(
+        document=FSInputFile("сakes_catalog.xlsx"),
+        caption="Ознакомьтесь с каталогом готовых тортов.",
+        reply_markup=keyboards.get_main_menu_keyboard()
     )
 
 
