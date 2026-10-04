@@ -214,7 +214,7 @@ async def process_show_orders(message: types.Message):
     orders_list = db_manager.show_orders(user_id)
     if orders_list:
         await message.answer(
-            "Ваши заказы (от новых к старым):\n\n" + "\n\n".join(orders_list)
+            "Ваши заказы :\n\n" + "\n\n".join(orders_list)
         )
     else:
         await message.answer(
@@ -222,17 +222,51 @@ async def process_show_orders(message: types.Message):
         )
 
 
-@router.message(F.text == "Удалить последний заказ")
-async def process_delete_order(message: types.Message):
-    user_id = message.from_user.id
-    delete_order = db_manager.cancel_last_order(user_id)
-    if delete_order:
+@router.message(F.text == "Оплатить заказ")
+async  def process_pay_order(message: types.Message, state: FSMContext):
+    await  state.set_state(CatalogState.waiting_for_pay_order_num)
+
+    await message.answer(
+        "Пожалуйста введите номер заказа, который хотите оплатить",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_pay_order_num)
+async def confirm_pay_order(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
         await message.answer(
-            "Ваш заказ успешно удален"
+            "Пожалуйста введите номер заказа"
+        )
+        return
+
+    user_id = message.from_user.id
+    order_num = int(message.text)
+
+    await  state.clear()
+
+    order =db_manager.get_order_by_num(user_id, order_num)
+    if order:
+        cake_name = order["cake_name"]
+        price = order["cake_price"]
+
+        receipt_text = (
+            f"Чек на оплату заказа № {order_num}\n"
+            f"Торт {cake_name}\n"
+            f"Сумма к оплате {price}\n"
+            f"Для оплаты перейдите по ссылке\n"
+            f"https://nspk.ru{order_num}_price{price}\n\n"
+        )
+
+        await  message.answer(
+            text=receipt_text,
+            parse_mode="HTML",
+            reply_markup=keyboards.get_my_orders_keyboard()
         )
     else:
         await message.answer(
-            "У вас больше нет заказов"
+            f"Заказ № {order_num} не найден среди ваших заказов.\n",
+            reply_markup=keyboards.get_my_orders_keyboard()
         )
 
 
@@ -258,7 +292,7 @@ async def process_phone_contact(message: types.Message):
     phone_number = message.contact.phone_number
     user_id = message.from_user.id
 
-    db_manager.update_last_order_phone(user_id, phone_number)
+    db_manager.update_last_order_data(user_id, phone_number)
 
     await message.answer(
         "Спасибо за заказ!\n"
@@ -328,9 +362,75 @@ async def process_checkout_click(message: types.Message, state: FSMContext):
     )
     await message.answer(
         f"{customer_name}, Ваш заказ: торт {selected_cake['name']} принят!\n"
-        f"Сумма вашего заказа {selected_cake['price']}!\n"
-        f"Поделитесь своим номером для связи с вами!",
-        reply_markup=keyboards.get_phone_keyboard()
+        f"Сумма вашего заказа {selected_cake['price']}!\n",
+        reply_markup=keyboards.get_checkout_action_keyboard()
+    )
+
+@router.message(F.text == "Завершить оформление заказа")
+async def process_final_step(message: types.Message, state: FSMContext):
+    await  state.set_state(CatalogState.waiting_for_address)
+    await  message.answer(
+        "Пожалуйста напишите адрес доставки!",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_address)
+async def process_address_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    user_address = message.text
+    db_manager.update_last_order_data(user_id=user_id, address=user_address)
+    await state.set_state(CatalogState.waiting_for_comment)
+    await message.answer(
+        "Адрес успешно сохранен в ваш заказ\n"
+        "Оставьте комментарий к заказу",
+        reply_markup=keyboards.get_skip_keyboard()
+    )
+
+
+@router.message(CatalogState.waiting_for_comment)
+async def process_comment_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+
+    if message.text == "Пропустить":
+        user_comment = message.text
+    else:
+        user_comment = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, comment=user_comment)
+    await state.set_state(CatalogState.waiting_for_delivery_date)
+    await message.answer(
+        "Пожалуйста укажите желаемою дату доставки в формате дд.мм.гггг\n"
+        "Например, 10.10.2026\n"
+        "Если дата доставки в ближайшие 24 часа + 20% к стоимости заказа!"
+    )
+
+
+@router.message(CatalogState.waiting_for_delivery_date)
+async def process_delivery_date_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    date_text = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, delivery_date=date_text)
+
+    await state.set_state(CatalogState.waiting_for_delivery_time)
+
+    await message.answer(
+        "Пожалйуста укажите желаемое время доставки!\n",
+    )
+
+
+@router.message(CatalogState.waiting_for_delivery_time)
+async def process_delivery_time_output(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    delivery_time_text = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, delivery_time=delivery_time_text)
+
+    await state.clear()
+    await message.answer(
+        "Последний штрих к оформлению вашего заказа.",
+        reply_markup=keyboards.get_final_checkout_keyboard()
     )
 
 

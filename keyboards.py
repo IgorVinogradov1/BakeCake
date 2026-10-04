@@ -3,6 +3,12 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from database import db_manager
 
 
+def get_skip_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Пропустить")
+    return builder.as_markup(resize_keyboard=True)
+
+
 def get_main_menu_keyboard():
     menu_builder = ReplyKeyboardBuilder()
     menu_builder.add(
@@ -21,19 +27,29 @@ def get_my_orders_keyboard():
         KeyboardButton(text="Посмотреть мои заказы"),
         KeyboardButton(text="Оплатить заказ"),
         KeyboardButton(text="Удалить заказ"),
-        KeyboardButton(text="Добавить\nкомментарий к заказу"),
+        KeyboardButton(text="Добавить комментарий к заказу"),
         KeyboardButton(text="Вернуться в главное меню")
     )
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_phone_keyboard():
+def get_checkout_action_keyboard():
+    builder = ReplyKeyboardBuilder()
+    builder.add(
+        KeyboardButton(text="Завершить оформление заказа"),
+        KeyboardButton(text="Выбрать другой торт")
+    )
+    builder.adjust(1)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+
+
+def get_final_checkout_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(
         KeyboardButton(text="Поделиться номером телефона", request_contact=True),
         KeyboardButton(text="Оформить без телефона"),
-        KeyboardButton(text="Выбрать другой торт")
+        KeyboardButton(text="Вернуться в главное меню")
     )
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)

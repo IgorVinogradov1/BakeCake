@@ -15,6 +15,7 @@ def main():
             f'ТГ аккаунт: {order["tg_username"]}\n'
             f'Торт: {order["cake_name"]}\n'
             f'Сумма заказа: {order["cake_price"]}'
+            f'Адрес доставки: {order["delivery_address"]}'
         )
 
 

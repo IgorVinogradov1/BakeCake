@@ -1,5 +1,7 @@
 import os
 import json
+from datetime import datetime
+import calculate
 
 DB_FILE = 'database.json'
 
@@ -105,20 +107,23 @@ def get_cakes():
     return cakes
 
 
-
 def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phone, tg_username):
-
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-
+    current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
     order = {
         "order_num": len(data["orders"]) + 1,
+        "order_time": current_time,
         "user_id": user_id,
         "cake_name": cake_name,
         "cake_price": cake_price,
         "customer_name": customer_name,
         "customer_phone": customer_phone,
         "tg_username": tg_username,
+        "delivery_address": None,
+        "user_comment": None,
+        "delivery_date": None,
+        "delivery_time": None,
     }
     data["orders"].append(order)
 
@@ -126,13 +131,25 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def update_last_order_phone(user_id, phone_number):
+def update_last_order_data(user_id, phone_number=None, address=None, comment=None, delivery_date=None,
+                           delivery_time=None):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     for order in reversed(data["orders"]):
         if order["user_id"] == user_id:
-            order["customer_phone"] = phone_number
+            if phone_number is not None:
+                order["customer_phone"] = phone_number
+            if address is not None:
+                order["delivery_address"] = address
+            if comment is not None:
+                order["user_comment"] = comment
+            if delivery_time is not None:
+                order["delivery_time"] = delivery_time
+            if delivery_date is not None:
+                order["delivery_date"] = delivery_date
+                if calculate.check_urgent_delivery(delivery_date):
+                    order["cake_price"] = int(order["cake_price"] * 1.2)
             break
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
@@ -172,7 +189,6 @@ def delete_order(user_id, order_num):
     return result
 
 
-
 def show_orders(user_id):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -180,14 +196,29 @@ def show_orders(user_id):
     for order in data["orders"]:
         if order["user_id"] == user_id:
             order_text = (
-            f'{"*" * 40}\n\n'
-            f'Номер заказа: {order["order_num"]}\n\n'
-            f'Имя заказчика: {order["customer_name"]}\n'
-            f'Номер телефона заказчика: {order["customer_phone"]}\n'
-            f'ТГ аккаунт: {order["tg_username"]}\n'
-            f'Торт: {order["cake_name"]}\n'
-            f'Сумма заказа: {order["cake_price"]}\n'
-            f'{"*" * 40}\n\n'
+                f'{"*" * 40}\n\n'
+                f'Номер заказа: {order["order_num"]}\n\n'
+                f'Время заказа: {order["order_time"]}\n'
+                f'Имя заказчика: {order["customer_name"]}\n'
+                f'Номер телефона заказчика: {order["customer_phone"]}\n'
+                f'ТГ аккаунт: {order["tg_username"]}\n'
+                f'Торт: {order["cake_name"]}\n'
+                f'Сумма заказа: {order["cake_price"]}\n'
+                f'Адрес доставки: {order["delivery_address"]}\n'
+                f'Комментарий: {order["user_comment"]}\n'
+                f'Дата доставки: {order["delivery_date"]}\n'
+                f'Время доставки: {order["delivery_time"]}\n'
+                f'{"*" * 40}\n\n'
             )
             orders_list.append(order_text)
     return orders_list
+
+
+def get_order_by_num(user_id, order_num):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    for order in data["orders"]:
+        if order["user_id"] == user_id and order["order_num"] == order_num:
+            return order
+    return None
