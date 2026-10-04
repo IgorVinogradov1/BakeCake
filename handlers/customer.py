@@ -141,7 +141,7 @@ async def process_phone_contact(message: types.Message):
     phone_number = message.contact.phone_number
     user_id = message.from_user.id
 
-    db_manager.update_last_order_phone(user_id, phone_number)
+    db_manager.update_last_order_data(user_id, phone_number)
 
     await message.answer(
         "Спасибо за заказ!\n"
