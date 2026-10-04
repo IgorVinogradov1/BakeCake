@@ -149,7 +149,7 @@ def update_last_order_data(user_id, phone_number=None, address=None, comment=Non
             if delivery_date is not None:
                 order["delivery_date"] = delivery_date
                 if calculate.check_urgent_delivery(delivery_date):
-                    order["cake_price"] = int(order["cake_price"] * 1.2)
+                    order["cake_price"] = int(int(order["cake_price"]) * 1.2)
             break
 
     with open(DB_FILE, 'w', encoding='utf-8') as f:
@@ -222,3 +222,19 @@ def get_order_by_num(user_id, order_num):
         if order["user_id"] == user_id and order["order_num"] == order_num:
             return order
     return None
+
+
+def update_order_comment_by_num(user_id, order_num, comment_text):
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    result = False
+    for order in data["orders"]:
+        if order["user_id"] == user_id and order["order_num"] == order_num:
+            order["user_comment"] = comment_text
+            result = True
+            break
+    if result:
+        with open(DB_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)         
+    return result

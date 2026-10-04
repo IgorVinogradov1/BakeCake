@@ -10,6 +10,8 @@ class CatalogState(StatesGroup):
     waiting_for_delivery_time = State()
     waiting_for_pay_order_num = State()
     waiting_for_delete_order_num = State()
+    waiting_for_comment_order_num = State()
+    waiting_for_comment_text = State()
 
 class CustomCake(StatesGroup):
     wait_levels_cake = State()

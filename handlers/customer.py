@@ -249,6 +249,62 @@ async def verify_delete_order_num(message: types.Message, state: FSMContext):
         )
 
 
+@router.message(F.text == "Добавить комментарий к заказу")
+async def process_add_comment_start(message: types.Message, state: FSMContext):
+    await state.set_state(CatalogState.waiting_for_comment_order_num)
+    await message.answer(
+        "Пожалуйста, введите номер заказа, к которому вы хотите добавить комментарий:",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_comment_order_num)
+async def process_comment_order_num(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
+        await message.answer("Пожалуйста, введите номер заказа (только цифры):")
+        return
+
+    user_id = message.from_user.id
+    order_num = int(message.text)
+
+    order = db_manager.get_order_by_num(user_id, order_num)
+    if not order:
+        await state.clear()
+        await message.answer(
+            f"Заказ № {order_num} не найден среди ваших заказов.",
+            reply_markup=keyboards.get_my_orders_keyboard()
+        )
+        return
+
+    await state.update_data(target_order_num=order_num)
+    await state.set_state(CatalogState.waiting_for_comment_text)
+    await message.answer(f"Напишите текст комментария для заказа № {order_num}:")
+
+
+@router.message(CatalogState.waiting_for_comment_text)
+async def process_comment_text(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    comment_text = message.text
+
+    # Достаем сохраненный номер заказа
+    data = await state.get_data()
+    order_num = data.get("target_order_num")
+
+    await state.clear() # Сбрасываем FSM
+
+    # Записываем комментарий в JSON-базу
+    if db_manager.update_order_comment_by_num(user_id, order_num, comment_text):
+        await message.answer(
+            f"Комментарий к заказу № {order_num} успешно добавлен!",
+            reply_markup=keyboards.get_my_orders_keyboard()
+        )
+    else:
+        await message.answer(
+            "Что-то пошло не так. Не удалось обновить комментарий.",
+            reply_markup=keyboards.get_my_orders_keyboard()
+        )
+
+
 @router.message(F.text == "Оплатить заказ")
 async  def process_pay_order(message: types.Message, state: FSMContext):
     await  state.set_state(CatalogState.waiting_for_pay_order_num)
