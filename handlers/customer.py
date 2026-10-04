@@ -141,8 +141,8 @@ async def process_decor(message: types.Message, state: FSMContext):
     )
     await state.set_state(CustomCake.wait_text_on_cake)
     await message.answer(
-        "Мы можем разместить на торте любую надпись.»\n"
-        "Введите желаемый текст сообщением (стоимость надписи +500р.) или выберете без надписи",
+        "Мы можем разместить на торте любую надпись.\n"
+        "Введите желаемый текст сообщением (стоимость надписи +500р.) или выберете без надписи.",
         reply_markup=keyboards.get_text_on_cake_keyboard()
     )
 
@@ -183,7 +183,7 @@ async def process_constructor_final(message: types.Message, state: FSMContext):
         f"{customer_name}, Ваш уникальный торт собран и принят!\n"
         f"Итоговая стоимость: {final_price} руб.!\n"
         f"Поделитесь своим номером для связи с вами!",
-        reply_markup=keyboards.get_phone_keyboard()
+        reply_markup=keyboards.get_checkout_action_keyboard()
     )
 
 
@@ -213,13 +213,9 @@ async def process_show_orders(message: types.Message):
     user_id = message.from_user.id
     orders_list = db_manager.show_orders(user_id)
     if orders_list:
-        await message.answer(
-            "Ваши заказы :\n\n" + "\n\n".join(orders_list)
-        )
+        await message.answer("Ваши заказы:\n\n" + "\n\n".join(orders_list))
     else:
-        await message.answer(
-            "У вас еще нет заказов"
-        )
+        await message.answer("У вас еще нет заказов")
 
 
 @router.message(F.text == "Оплатить заказ")
@@ -227,7 +223,7 @@ async  def process_pay_order(message: types.Message, state: FSMContext):
     await  state.set_state(CatalogState.waiting_for_pay_order_num)
 
     await message.answer(
-        "Пожалуйста введите номер заказа, который хотите оплатить",
+        "Пожалуйста, введите номер заказа, который хотите оплатить",
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -235,9 +231,7 @@ async  def process_pay_order(message: types.Message, state: FSMContext):
 @router.message(CatalogState.waiting_for_pay_order_num)
 async def confirm_pay_order(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
-        await message.answer(
-            "Пожалуйста введите номер заказа"
-        )
+        await message.answer("Пожалуйста, введите номер заказа")
         return
 
     user_id = message.from_user.id
@@ -297,8 +291,8 @@ async def process_phone_contact(message: types.Message):
     await message.answer(
         "Спасибо за заказ!\n"
         "В ближайшее время с вами свяжется наш менеджер.\n"
-        "Добавить комментарий к заказу, посмотреть свои заказы или удалить заказ\n "
-        "Вы можете в меню 'МОИ ЗАКАЗЫ'.",
+        "Добавить комментарий к заказу, посмотреть или удалить заказ\n"
+        "Вы можете в меню «Мои заказы».",
         reply_markup=keyboards.get_main_menu_keyboard()
     )
 
@@ -321,8 +315,8 @@ async def process_checkout_without_phone(message: types.Message):
     customer_name = message.from_user.first_name
     await message.answer(
         "Ваш заказ успешно подтвержден!\n"
-        "Добавить комментарий к заказу, посмотреть свои заказы или удалить заказ\n "
-        "Вы можете в меню 'МОИ ЗАКАЗЫ'.",
+        "Добавить комментарий к заказу, посмотреть или удалить заказ\n"
+        "Вы можете в меню «Мои заказы».",
         reply_markup=keyboards.get_main_menu_keyboard()
     )
 
@@ -370,7 +364,7 @@ async def process_checkout_click(message: types.Message, state: FSMContext):
 async def process_final_step(message: types.Message, state: FSMContext):
     await  state.set_state(CatalogState.waiting_for_address)
     await  message.answer(
-        "Пожалуйста напишите адрес доставки!",
+        "Пожалуйста, напишите адрес доставки!",
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -382,8 +376,8 @@ async def process_address_input(message: types.Message, state: FSMContext):
     db_manager.update_last_order_data(user_id=user_id, address=user_address)
     await state.set_state(CatalogState.waiting_for_comment)
     await message.answer(
-        "Адрес успешно сохранен в ваш заказ\n"
-        "Оставьте комментарий к заказу",
+        "Адрес успешно сохранен в ваш заказ.\n"
+        "Вы можете оставить комментарий к заказу:",
         reply_markup=keyboards.get_skip_keyboard()
     )
 
@@ -400,9 +394,10 @@ async def process_comment_input(message: types.Message, state: FSMContext):
     db_manager.update_last_order_data(user_id=user_id, comment=user_comment)
     await state.set_state(CatalogState.waiting_for_delivery_date)
     await message.answer(
-        "Пожалуйста укажите желаемою дату доставки в формате дд.мм.гггг\n"
-        "Например, 10.10.2026\n"
-        "Если дата доставки в ближайшие 24 часа + 20% к стоимости заказа!"
+        "Пожалуйста, укажите желаемую дату доставки в формате дд.мм.гггг. "
+        "Например, 10.10.2026.\n"
+        "Если дата доставки в ближайшие 24 часа + 20% к стоимости заказа!",
+        reply_markup=ReplyKeyboardRemove()
     )
 
 
@@ -416,7 +411,8 @@ async def process_delivery_date_input(message: types.Message, state: FSMContext)
     await state.set_state(CatalogState.waiting_for_delivery_time)
 
     await message.answer(
-        "Пожалйуста укажите желаемое время доставки!\n",
+        "Пожалуйста, укажите желаемое время доставки!\n",
+        reply_markup=keyboards.get_skip_keyboard()
     )
 
 

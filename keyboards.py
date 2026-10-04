@@ -30,7 +30,7 @@ def get_my_orders_keyboard():
         KeyboardButton(text="Добавить комментарий к заказу"),
         KeyboardButton(text="Вернуться в главное меню")
     )
-    builder.adjust(1)
+    builder.adjust(2)
     return builder.as_markup(resize_keyboard=True)
 
 
