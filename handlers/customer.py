@@ -218,6 +218,37 @@ async def process_show_orders(message: types.Message):
         await message.answer("У вас еще нет заказов")
 
 
+@router.message(F.text == "Удалить заказ")
+async def process_delete_order_start(message: types.Message, state: FSMContext):
+    await state.set_state(CatalogState.waiting_for_delete_order_num)
+    await message.answer(
+        "Пожалуйста, введите номер заказа, который вы хотите удалить:",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(CatalogState.waiting_for_delete_order_num)
+async def verify_delete_order_num(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
+        await message.answer("Пожалуйста, введите корректный номер заказа (только цифры):")
+        return
+
+    user_id = message.from_user.id
+    order_num = int(message.text)
+    await state.clear()
+
+    if db_manager.delete_order(user_id, order_num):
+        await message.answer(
+            f"Заказ № {order_num} успешно удален.",
+            reply_markup=keyboards.get_my_orders_keyboard()
+        )
+    else:
+        await message.answer(
+            f"Заказ № {order_num} не найден среди ваших заказов.\n",
+            reply_markup=keyboards.get_my_orders_keyboard()
+        )
+
+
 @router.message(F.text == "Оплатить заказ")
 async  def process_pay_order(message: types.Message, state: FSMContext):
     await  state.set_state(CatalogState.waiting_for_pay_order_num)
