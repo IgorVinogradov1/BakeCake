@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 
 DB_FILE = 'database.json'
 
@@ -110,9 +111,10 @@ def save_cake_order(user_id, cake_name, cake_price, customer_name, customer_phon
 
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-
+    current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
     order = {
         "order_num": len(data["orders"]) + 1,
+        "order_time": current_time,
         "user_id": user_id,
         "cake_name": cake_name,
         "cake_price": cake_price,
@@ -189,6 +191,7 @@ def show_orders(user_id):
             order_text = (
             f'{"*" * 40}\n\n'
             f'Номер заказа: {order["order_num"]}\n\n'
+            f'Время заказа: {order["order_time"]}\n'
             f'Имя заказчика: {order["customer_name"]}\n'
             f'Номер телефона заказчика: {order["customer_phone"]}\n'
             f'ТГ аккаунт: {order["tg_username"]}\n'
