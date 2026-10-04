@@ -286,13 +286,12 @@ async def process_comment_text(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     comment_text = message.text
 
-    # Достаем сохраненный номер заказа
     data = await state.get_data()
     order_num = data.get("target_order_num")
 
-    await state.clear() # Сбрасываем FSM
+    await state.clear()
 
-    # Записываем комментарий в JSON-базу
+
     if db_manager.update_order_comment_by_num(user_id, order_num, comment_text):
         await message.answer(
             f"Комментарий к заказу № {order_num} успешно добавлен!",

@@ -78,6 +78,7 @@ def get_cakes_keyboard():
 
     return cakes_builder.as_markup(resize_keyboard=True)
 
+
 def get_levels_cake_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(
@@ -88,6 +89,7 @@ def get_levels_cake_keyboard():
     )
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
+
 
 def get_form_cake_keyboard():
     builder = ReplyKeyboardBuilder()
@@ -100,48 +102,45 @@ def get_form_cake_keyboard():
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
 
+
 def get_topping_cake_keyboard():
     builder = ReplyKeyboardBuilder()
-    builder.add(
-        KeyboardButton(text="Без топпинга (+0р.)"),
-        KeyboardButton(text="Белый соус (+200р.)"),
-        KeyboardButton(text="Карамельный сироп (+180р.)"),
-        KeyboardButton(text="Кленовый сироп (+200р.)"),
-        KeyboardButton(text="Клубничный сироп (+300р.)"),
-        KeyboardButton(text="Черничный сироп (+350р.)"),
-        KeyboardButton(text="Молочный шоколад (+200р.)"),
-        KeyboardButton(text="Отменить сборку и вернуться в главное меню")
-    )
+    toppings = db_manager.get_toppings()
+    
+    for topping in toppings:
+        button_text = f"{topping['name']} (+{topping['price']}р.)"
+        builder.add(KeyboardButton(text=button_text))
+        
+    builder.row(KeyboardButton(text="Отменить сборку и вернуться в главное меню"))
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
+
 
 def get_berries_cake_keyboard():
     builder = ReplyKeyboardBuilder()
-    builder.add(
-        KeyboardButton(text="Без ягод (+0р.)"),
-        KeyboardButton(text="Ежевика (+400р.)"),
-        KeyboardButton(text="Малина (+300р.)"),
-        KeyboardButton(text="Голубика (+450р.)"),
-        KeyboardButton(text="Клубника (+500р.)"),
-        KeyboardButton(text="Отменить сборку и вернуться в главное меню")
-    )
+    berries = db_manager.get_berries()
+    
+    for berry in berries:
+        button_text = f"{berry['name']} (+{berry['price']}р.)"
+        builder.add(KeyboardButton(text=button_text))
+        
+    builder.row(KeyboardButton(text="Отменить сборку и вернуться в главное меню"))
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
 
+
 def get_decor_cake_keyboard():
     builder = ReplyKeyboardBuilder()
-    builder.add(
-        KeyboardButton(text="Без декора (+0р.)"),
-        KeyboardButton(text="Фисташки (+300р.)"),
-        KeyboardButton(text="Безе (+400р.)"),
-        KeyboardButton(text="Фундук (+350р.)"),
-        KeyboardButton(text="Пекан (+300р.)"),
-        KeyboardButton(text="Маршмеллоу (+200р.)"),
-        KeyboardButton(text="Марципан (+280р.)"),
-        KeyboardButton(text="Отменить сборку и вернуться в главное меню")
-    )
+    decors = db_manager.get_decors()
+    
+    for decor in decors:
+        button_text = f"{decor['name']} (+{decor['price']}р.)"
+        builder.add(KeyboardButton(text=button_text))
+        
+    builder.row(KeyboardButton(text="Отменить сборку и вернуться в главное меню"))
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
+
 
 def get_text_on_cake_keyboard():
     builder = ReplyKeyboardBuilder()

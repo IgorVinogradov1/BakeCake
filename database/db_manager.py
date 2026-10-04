@@ -48,6 +48,31 @@ def init_db():
                     "img": "images/barhat.jpg",
                     "description": "Роскошный «Красный бархат»: классика в каждой детали!",
                 },
+            ],
+            "toppings": [
+                {"name": "Без топпинга", "price": 0},
+                {"name": "Белый соус", "price": 200},
+                {"name": "Карамельный сироп", "price": 180},
+                {"name": "Кленовый сироп", "price": 200},
+                {"name": "Клубничный сироп", "price": 300},
+                {"name": "Черничный сироп", "price": 350},
+                {"name": "Молочный шоколад", "price": 200}
+            ],
+            "berries": [
+                {"name": "Без ягод", "price": 0},
+                {"name": "Ежевика", "price": 400},
+                {"name": "Малина", "price": 300},
+                {"name": "Голубика", "price": 450},
+                {"name": "Клубника", "price": 500}
+            ],
+            "decors": [
+                {"name": "Без декора", "price": 0},
+                {"name": "Фисташки", "price": 300},
+                {"name": "Безе", "price": 400},
+                {"name": "Фундук", "price": 350},
+                {"name": "Пекан", "price": 300},
+                {"name": "Маршмеллоу", "price": 200},
+                {"name": "Марципан", "price": 280}
             ]
         }
         with open(DB_FILE, 'w', encoding='utf-8') as f:
@@ -238,3 +263,27 @@ def update_order_comment_by_num(user_id, order_num, comment_text):
         with open(DB_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)         
     return result
+
+
+def get_toppings():
+    if not os.path.exists(DB_FILE):
+        return []
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data.get('toppings', [])
+
+
+def get_berries():
+    if not os.path.exists(DB_FILE):
+        return []
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data.get('berries', [])
+
+
+def get_decors():
+    if not os.path.exists(DB_FILE):
+        return []
+    with open(DB_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data.get('decors', [])
