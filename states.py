@@ -6,3 +6,4 @@ class CatalogState(StatesGroup):
     waiting_for_checkout_action = State()
     waiting_for_address = State()
     waiting_for_comment = State()
+    waiting_for_delivery_date = State()

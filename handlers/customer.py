@@ -97,7 +97,7 @@ async def process_show_orders(message: types.Message):
     orders_list = db_manager.show_orders(user_id)
     if orders_list:
         await message.answer(
-            "Ваши заказы (от новых к старым):\n\n" + "\n\n".join(orders_list)
+            "Ваши заказы :\n\n" + "\n\n".join(orders_list)
         )
     else:
         await message.answer(
@@ -247,11 +247,25 @@ async def process_comment_input(message: types.Message, state: FSMContext):
         user_comment = message.text
 
     db_manager.update_last_order_data(user_id=user_id, comment=user_comment)
-    await state.clear()
+    await state.set_state(CatalogState.waiting_for_delivery_date)
     await message.answer(
-        "Последний штрих для оформления вашего заказа",
+        "Пожалуйста укажите желаемою дату доставки в формате дд.мм.гггг\n"
+        "Например, 10.10.2026\n"
+        "Если дата доставки в ближайшие 24 часа + 20% к стоимости заказа!"
+    )
+@router.message(CatalogState.waiting_for_delivery_date)
+async def process_delivery_date_input(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    date_text = message.text
+
+    db_manager.update_last_order_data(user_id=user_id, delivery_date=date_text)
+    await state.clear()
+
+    await message.answer(
+        "Последний штрих к оформлению вашего заказа\n",
         reply_markup=keyboards.get_final_checkout_keyboard()
     )
+
 
 @router.message(F.text == "Выбрать другой торт")
 async def back_to_cake_menu(message: types.Message, state: FSMContext):
